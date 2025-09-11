@@ -1,0 +1,10 @@
+1. Allow PowerShell scripts to be executed on your machine. On Win11, this is under "Developer Settings" in settings.
+
+2. Ensure the Audio Switcher folder is in a location you're happy with [permanently!].
+
+3. Run the "Setup.ps1" script in this folder. This will create the settings app and the link on your desktop.
+
+4. Open the settings app newly generated and set device 1 and 2. 
+
+Now your desktop link should switch between the two chosen when double clicked!
+Enjoy :D 
