@@ -10,7 +10,14 @@
 
 CHANGE LOG
 =---------= [V1.0]
-1. Settings GUI interface
+1. Settings GUI
 2. Setup script
 3. Script to switch
 4. Desktop link for double-click hot-swap
+
+=---------= [V1.1]
+1. Modified setup script to contain:
+  a. New AudioSwitcher logo at the top
+  b. Install burnttoast module
+2. Modified Settings GUI to add toggle for notifications
+3. Added notifications to the switcher as per the setting

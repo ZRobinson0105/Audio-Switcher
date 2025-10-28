@@ -4,7 +4,7 @@ cd
 $Form = 					New-Object System.Windows.Forms.Form
 $Form.Icon = 				".\speaker.ico"
 $Form.FormBorderStyle = 	"2"
-$Form.Size =				New-Object System.Drawing.Size(450,370)
+$Form.Size =				New-Object System.Drawing.Size(450,415)
 $Form.Text =				"Audio Switcher - Settings"
 $Form.MaximizeBox = 		$False
 $Form.MinimizeBox = 		$False
@@ -18,9 +18,10 @@ Function GetVariables () {
 	Foreach ($Line in $SettingsFile) {
 		if ($LineNo -ge 3) {
 			$LineParsed = $Line -split " = "
-			if ($LineParsed[0] -eq "Theme")    {$Global:Theme = $LineParsed[1]} 
-			if ($LineParsed[0] -eq "Device_1") {$Global:Device_1 = 	$LineParsed[1]} 
-			if ($LineParsed[0] -eq "Device_2") {$Global:Device_2 = 	$LineParsed[1]}
+			if ($LineParsed[0] -eq "Theme")         {$Global:Theme =		$LineParsed[1]}
+			if ($LineParsed[0] -eq "Notifications") {$Global:Notifications = $LineParsed[1]}
+			if ($LineParsed[0] -eq "Device_1")      {$Global:Device_1 = 	$LineParsed[1]}
+			if ($LineParsed[0] -eq "Device_2")      {$Global:Device_2 = 	$LineParsed[1]}
 		}
 		
 		$LineNo ++
@@ -30,13 +31,15 @@ Function GetVariables () {
 	# Write-Host $Global:Device_2
 }
 
+GetVariables
+
 #Defined colours to minimize confusion
 #Darkest
 $Dark3 = "#262626"
 $Dark2 = "#525252"
 #Lightest
 #========
-#(inverse order for light mode
+#(inverse order for light mode)
 #Darkest
 $White2 = "#b6bebf"
 $White3 = "#798080"
@@ -89,13 +92,23 @@ $Device2List.Size = 			New-Object System.Drawing.Size(386, 45)
 $Device2List.Font = 			"Microsoft Sans Serif,12"
 $Device2List.DropDownStyle = 	[System.Windows.Forms.ComboBoxStyle]::DropDownList #Not editable
 
-$ApplyButton = 					New-Object Windows.Forms.Button
-$ApplyButton.Location =			New-Object System.Drawing.Point(10,280)
-$ApplyButton.Size = 			New-Object System.Drawing.Size(180,35)
-$ApplyButton.Text =				"Apply Changes"
-$ApplyButton.TextAlign = 		"MiddleLeft"
-$ApplyButton.Font = 			"Microsoft Sans Serif,12"
-$ApplyButton.Enabled = 			$False
+
+$NotificationButton = 				New-Object Windows.Forms.Button
+$NotificationButton.Location =		New-Object System.Drawing.Point(10,280)
+$NotificationButton.Size = 			New-Object System.Drawing.Size(180,35)
+$NotificationButton.Text =			"Notifications"
+$NotificationButton.TextAlign = 	"MiddleLeft"
+$NotificationButton.Font = 			"Microsoft Sans Serif,12"
+$NotificationButton.Enabled = 		$True
+GetVariables
+if ($Global:Notifications -eq "True") {
+	$NotificationButton.BackColor = "#345e2a"
+	$NotificationButton.ForeColor = "#30f205"
+}
+else{
+	$NotificationButton.BackColor = "#521409"
+	$NotificationButton.ForeColor = "#ed2805"
+}
 
 $ChangeTheme = 					New-Object Windows.Forms.Button
 $ChangeTheme.Location =			New-Object System.Drawing.Point(240,280)
@@ -103,6 +116,14 @@ $ChangeTheme.Size = 			New-Object System.Drawing.Size(180,35)
 $ChangeTheme.Text =				"Change theme"
 $ChangeTheme.TextAlign = 		"Middleright"
 $ChangeTheme.Font = 			"Microsoft Sans Serif,12"
+
+$ApplyButton = 					New-Object Windows.Forms.Button
+$ApplyButton.Location =			New-Object System.Drawing.Point(10,325)
+$ApplyButton.Size = 			New-Object System.Drawing.Size(410,35)
+$ApplyButton.Text =				"Apply Changes"
+$ApplyButton.TextAlign = 		"MiddleCenter"
+$ApplyButton.Font = 			"Microsoft Sans Serif,12"
+$ApplyButton.Enabled = 			$False
 
 $ChangeTheme.Add_Click({
 	$SettingsFile = Get-Content $Settings
@@ -136,6 +157,7 @@ $Device2List.add_SelectedIndexChanged({
 $ApplyButton.Add_Click({
 	$Device1before = $Device_1
 	$Device2before = $Device_2
+	$NotisBefore = $Global:Notifications
 	$SettingsFile = Get-Content $Settings
 	$NewFile = @()
 	Foreach ($Line in $SettingsFile) {
@@ -144,6 +166,10 @@ $ApplyButton.Add_Click({
 		}
 		elseif ($Line -like "*Device_2*") {
 			if (($Device2List.SelectedItem).Length -gt 0)    {$NewFile = $NewFile + "Device_2 = $($Device2List.SelectedItem)"}
+		}
+		elseif ($Line -like "*Notifications*") {
+			if ($Line -eq "Notifications = True")    {$NewFile = $NewFile + "Notifications = False"}
+			else {$NewFile = $NewFile + "Notifications = True"}
 		}
 		else{
 			$NewFile = $NewFile + $Line
@@ -161,6 +187,14 @@ $ApplyButton.Add_Click({
 		Write-Host "Device 2 updated!" -ForegroundColor DarkGreen
 		Write-Host "$($Device2before) -> $($Device_2)`n" -ForegroundColor DarkGreen
 	}
+	if ($NotisBefore -ne $Global:Notifications) {
+		if ($Global:Notifications -eq "True") {
+			Write-host "Notifications have been turned On." -ForegroundColor DarkGreen
+		}
+		else {
+			Write-host "Notifications have been turned Off." -ForegroundColor DarkGreen
+		}
+	}
 })	
                            
 Function CheckApply () {
@@ -169,6 +203,9 @@ Function CheckApply () {
 		$Applicable = $True
 	}
 	if (($Global:Device_2 -ne $Device2List.SelectedItem) -and ($Device2List.SelectedItem -ne "Choose a device")) {
+		$Applicable = $True
+	}
+	if ($Global:TempNotis -ne $Global:Notifications) {
 		$Applicable = $True
 	}
 	#If a change is detected
@@ -182,6 +219,26 @@ Function CheckApply () {
 		$ApplyButton.Enabled = $False
 	}
 }
+
+$NotificationButton.Add_Click({
+	if ($Global:TempNotis -eq "True") {
+		$Global:TempNotis = "False"
+	}
+	else {
+		$Global:TempNotis = "True"
+	}
+
+	if ($Global:TempNotis -eq "True") {
+		$NotificationButton.BackColor = "#345e2a"
+		$NotificationButton.ForeColor = "#30f205"
+	}
+	else{
+		$NotificationButton.BackColor = "#521409"
+		$NotificationButton.ForeColor = "#ed2805"
+	}
+	CheckApply
+	
+})
 
 Function SetTheme () {
 	if ($Global:Theme -eq "Dark") {
@@ -260,13 +317,15 @@ Function Populate ($Element) {
 
 #Run functions
 GetVariables
+$Global:TempNotis = $Global:Notifications
+
 Populate $Device1List
 Populate $Device2List
 SetTheme
 
 #Add all elements to form
 $Elements = @($BackerButton, $Explanation, $Device1Backer, $Device1Label, $Device1List, $Device2Backer, $Device2Label, $Device2List, 
-			$ApplyButton, $ChangeTheme)
+			$ApplyButton, $ChangeTheme, $NotificationButton)
 
 $Form.Controls.AddRange($Elements)
 $BackerButton.SendToBack()

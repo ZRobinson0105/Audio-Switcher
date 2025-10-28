@@ -14,8 +14,27 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     }
 }
 Write-Host "Running as Administrator."-ForegroundColor Green
+start-sleep 2
+cls
+start-sleep 2
+$Block = @(" _______  __   __  ______   ___   _______    _______  _     _  ___   _______  _______  __   __  _______  ______",  
+	"|   _   ||  | |  ||      | |   | |       |  |       || | _ | ||   | |       ||       ||  | |  ||       ||    _ |  ",
+	"|  |_|  ||  | |  ||  _    ||   | |   _   |  |  _____|| || || ||   | |_     _||       ||  |_|  ||    ___||   | ||  ",
+	"|       ||  |_|  || | |   ||   | |  | |  |  | |_____ |       ||   |   |   |  |       ||       ||   |___ |   |_||_ ",
+	"|       ||       || |_|   ||   | |  |_|  |  |_____  ||       ||   |   |   |  |      _||       ||    ___||    __  |",
+	"|   _   ||       ||       ||   | |       |   _____| ||   _   ||   |   |   |  |     |_ |   _   ||   |___ |   |  | |",
+	"|__| |__||_______||______| |___| |_______|  |_______||__| |__||___|   |___|  |_______||__| |__||_______||___|  |_|")
+foreach ($Segment in $Block) {
+	write-host $Segment
+	start-sleep -milliseconds 80
+}
+Write-Host "by Zack"
+write-host "`n`n"
+
+
 Write-Host "Installing necessary audio modules for powershell..." -ForegroundColor Cyan
 Install-Module -Name AudioDeviceCmdlets -Force -Verbose
+Install-Module -Name BurntToast -Force
 start-sleep 3
 Write-Host "Install complete.`n" -ForegroundColor Green
 start-sleep 2
@@ -67,6 +86,7 @@ Get-ChildItem -Path $CurrentDir -Recurse -Include *.ps1,*.psm1,*.psd1 |
     }
 
 
-
-Write-Host "Setup success! see rest of setup.txt for next steps.`nThis window will close in 10 seconds."-ForegroundColor Green
+Write-Host ("=" * 52) -ForegroundColor Cyan
+Write-Host "Setup success! see rest of setup.txt for next steps.`nThis window will close in 10 seconds."-ForegroundColor Cyan
+Write-Host ("=" * 52) -ForegroundColor Cyan
 start-sleep 10
